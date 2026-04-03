@@ -19,7 +19,7 @@ echo "  GPU layers: $N_GPU_LAYERS  CTX: $CTX_SIZE  Port: $LLAMA_PORT"
     --port "$LLAMA_PORT" \
     --n-gpu-layers "$N_GPU_LAYERS" \
     --ctx-size "$CTX_SIZE" \
-    --flash-attn \
+    --flash-attn on \
     --temp 1.0 \
     --top-p 0.95 \
     --top-k 64 \

@@ -7,8 +7,16 @@ N_GPU_LAYERS="${N_GPU_LAYERS:-999}"
 CTX_SIZE="${CTX_SIZE:-8192}"
 LLAMA_PORT="${LLAMA_PORT:-8080}"
 
+# Use the persistent RunPod volume for model caching when available,
+# so the 33 GB model doesn't re-download on every cold start.
+if [ -d "/runpod-volume" ] && [ -w "/runpod-volume" ]; then
+    export LLAMA_CACHE="/runpod-volume/llama-cache"
+    echo "Using persistent cache: $LLAMA_CACHE"
+fi
+mkdir -p "$LLAMA_CACHE"
+
 echo "Starting llama-server: repo=${MODEL_REPO} file=${MODEL_FILE}"
-echo "  GPU layers: $N_GPU_LAYERS  CTX: $CTX_SIZE  Port: $LLAMA_PORT"
+echo "  GPU layers: $N_GPU_LAYERS  CTX: $CTX_SIZE  Port: $LLAMA_PORT  Cache: $LLAMA_CACHE"
 
 # llama-server downloads the GGUF from HuggingFace on first run and
 # caches it locally (controlled by LLAMA_CACHE env var).
@@ -29,7 +37,7 @@ SERVER_PID=$!
 
 echo "Waiting for llama-server (pid $SERVER_PID) ..."
 READY=0
-for _ in $(seq 1 180); do          # up to 6 min for download + load
+for _ in $(seq 1 360); do          # up to 12 min for download + load
     if curl -sf "http://localhost:${LLAMA_PORT}/health" >/dev/null 2>&1; then
         echo "llama-server is ready"
         READY=1

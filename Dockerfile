@@ -22,7 +22,8 @@ ENV MODEL_FILE="gemma-4-31B-it-Q8_0.gguf"
 ENV N_GPU_LAYERS="999"
 ENV CTX_SIZE="8192"
 ENV LLAMA_PORT="8080"
-# llama.cpp's own download cache (set to a persistent path if using network volumes)
+# llama.cpp's own download cache — start.sh overrides this to
+# /runpod-volume/llama-cache when the volume is mounted.
 ENV LLAMA_CACHE="/tmp/llama-cache"
 
 # Override the base image's ENTRYPOINT (which is /app/llama-server)

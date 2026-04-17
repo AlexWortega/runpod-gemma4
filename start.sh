@@ -15,14 +15,25 @@ if [ -d "/runpod-volume" ] && [ -w "/runpod-volume" ]; then
 fi
 mkdir -p "$LLAMA_CACHE"
 
-echo "Starting llama-server: repo=${MODEL_REPO} file=${MODEL_FILE}"
+# Check whether RunPod's model caching already placed the GGUF on disk.
+# The HF cache layout is: models--<org>--<repo>/snapshots/<hash>/<file>
+HF_CACHE="/runpod-volume/huggingface-cache/hub"
+REPO_DASHED="$(echo "$MODEL_REPO" | tr '/' '--')"
+PRECACHED=$(find "${HF_CACHE}/models--${REPO_DASHED}" -name "$MODEL_FILE" -type f 2>/dev/null | head -1)
+
+if [ -n "$PRECACHED" ]; then
+    echo "Found RunPod pre-cached model: $PRECACHED"
+    MODEL_ARGS=(--model "$PRECACHED")
+else
+    echo "No pre-cached model found, will download via --hf-repo"
+    MODEL_ARGS=(--hf-repo "$MODEL_REPO" --hf-file "$MODEL_FILE")
+fi
+
+echo "Starting llama-server: ${MODEL_ARGS[*]}"
 echo "  GPU layers: $N_GPU_LAYERS  CTX: $CTX_SIZE  Port: $LLAMA_PORT  Cache: $LLAMA_CACHE"
 
-# llama-server downloads the GGUF from HuggingFace on first run and
-# caches it locally (controlled by LLAMA_CACHE env var).
 /app/llama-server \
-    --hf-repo "$MODEL_REPO" \
-    --hf-file "$MODEL_FILE" \
+    "${MODEL_ARGS[@]}" \
     --host 0.0.0.0 \
     --port "$LLAMA_PORT" \
     --n-gpu-layers "$N_GPU_LAYERS" \

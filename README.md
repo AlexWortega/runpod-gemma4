@@ -23,21 +23,17 @@ RunPod job ──► handler.py ──► llama-server (:8080, OpenAI-compat)
 
 ## Deploying to RunPod
 
-### 1. Push to GitHub
-
-```bash
-cd runpod-gemma4
-git init && git add -A && git commit -m "initial commit"
-gh repo create runpod-gemma4 --private --source . --push
-```
+### 1. Fork this repo
 
 ### 2. Create a serverless template
 
-In the RunPod console under **Serverless > Templates > New Template**:
+In the RunPod console under **Serverless**:
+* click **+ New Endpoint**, 
+* **Configure Endpoint**
 
 | Field              | Value                                       |
 | ------------------ | ------------------------------------------- |
-| Template Name      | `gemma-4-31b-llama-cpp`                     |
+| Endpoint Name      | `gemma-4-31b-llama-cpp`                     |
 | Container Source   | **GitHub Repo** — select the repo above     |
 | Dockerfile Path    | `Dockerfile`                                |
 | Model              | `unsloth/gemma-4-31B-it-GGUF`              |
@@ -47,10 +43,7 @@ and schedule workers onto hosts that already have it.  Download time is not
 billed.  See
 [RunPod model caching docs](https://docs.runpod.io/serverless/endpoints/model-caching).
 
-### 3. Create a serverless endpoint
-
-Under **Serverless > Endpoints > New Endpoint**, select the template and pick a
-GPU tier.  Q8_0 at ~33 GB needs a GPU with at least 35 GB VRAM:
+Pick a GPU tier — Q8_0 at ~33 GB needs at least 35 GB VRAM:
 
 | GPU          | VRAM   | Notes                       |
 | ------------ | ------ | --------------------------- |

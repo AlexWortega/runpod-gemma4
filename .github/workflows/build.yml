@@ -36,5 +36,5 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/runpod-gemma4:latest
+          tags: ghcr.io/alexwortega/runpod-gemma4:latest
           provenance: false
